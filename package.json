@@ -34,6 +34,7 @@
   "dependencies": {
     "@aws-amplify/auth": "^4.3",
     "@aws-amplify/api-graphql": "^2.2",
+    "graphql": "^15.6",
     "graphql-tag": "^2.12",
     "lodash": "^4.17",
     "node-fetch": "^3.0.0"
