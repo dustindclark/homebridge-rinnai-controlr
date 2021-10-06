@@ -9,7 +9,7 @@
     "url": "git://github.com/dustindclark/homebridge-rinnai-controlr"
   },
   "bugs": {
-    "url": "https://github.com/dustindclark/homebridge-rinnai-controlr"
+    "url": "https://github.com/dustindclark/homebridge-rinnai-controlr/issues"
   },
   "engines": {
     "node": ">=12.13.0",
@@ -42,5 +42,10 @@
     "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.2"
+  },
+  "homepage": "https://github.com/dustindclark/homebridge-rinnai-controlr#readme",
+  "funding": {
+    "type" : "paypal",
+    "url" : "https://paypal.me/dustindclark"
   }
 }
