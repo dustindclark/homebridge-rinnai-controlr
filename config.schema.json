@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "RinnaiControlrHomebridgePlugin",
+  "pluginAlias": "RinnaiControlR",
   "pluginType": "platform",
   "singular": true,
   "schema": {
