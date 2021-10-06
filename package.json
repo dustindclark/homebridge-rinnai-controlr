@@ -1,16 +1,15 @@
 {
-  "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
+  "displayName": "Homebridge Rinnai Control-R Plugin",
+  "name": "homebridge-rinnai-controlr",
   "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "description": "Integrates with Rinnai Control-R for HomeKit control of water heaters",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/dustindclark/homebridge-rinnai-controlr"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/dustindclark/homebridge-rinnai-controlr"
   },
   "engines": {
     "node": ">=12.13.0",
@@ -24,9 +23,15 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge rinnai,homebridge rinnai control r,homebridge rinnai control-r,homekit rinnai,homekit rinnai control-r,homekit rinnai controlr"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@aws-amplify/auth": "^4.3",
+    "@aws-amplify/api-graphql": "^2.2",
+    "graphql-tag": "^2.12",
+    "lodash": "^4.17",
+    "node-fetch": "^3.0.0"
+  },
   "devDependencies": {
     "@types/node": "^14.14.31",
     "@typescript-eslint/eslint-plugin": "^4.16.1",

@@ -1,15 +1,53 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "RinnaiControlrHomebridgePlugin",
   "pluginType": "platform",
   "singular": true,
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
+      "username": {
+        "title": "Username",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "john@doe.com"
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true,
+        "default": "*****"
+      },
+      "recirculationDuration": {
+        "title": "Recirculation Duration",
+        "description": "Duration in minutes that recirculation will run when toggled",
+        "type": "number",
+        "required": true,
+        "default": "15"
+      },
+      "temperatureUnits": {
+        "title": "Temperature Units",
+        "description": "Celsius or Fahrenheit",
+        "type": "string",
+        "required": true,
+        "default": "F",
+        "oneOf": [
+          { "title": "F", "enum": ["F"] },
+          { "title": "C", "enum": ["C"] }
+        ]
+      },
+      "minimumTemperature": {
+        "title": "Minimum Temperature",
+        "description": "Minimum temperature to be used by HomeKit slider. Use same units as configured above.",
+        "type": "number",
+        "required": true,
+        "default": "120"
+      },
+      "maximumTemperature": {
+        "title": "Maximum Temperature",
+        "description": "Maximum temperature to be used by HomeKit slider. Use same units as configured above.",
+        "type": "number",
+        "required": true,
+        "default": "140"
       }
     }
   }

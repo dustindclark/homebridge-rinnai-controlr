@@ -1,141 +1,138 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import {CharacteristicValue, Nullable, PlatformAccessory, Service} from 'homebridge';
 
-import { ExampleHomebridgePlatform } from './platform';
+import {RinnaiControlrHomebridgePlatform} from './platform';
+import {TemperatureDisplayUnits} from 'hap-nodejs/dist/lib/definitions/CharacteristicDefinitions';
+import {
+  API_KEY_RECIRCULATION_DURATION,
+  API_KEY_SET_PRIORITY_STATUS, API_KEY_SET_RECIRCULATION_ENABLED,
+  API_KEY_SET_TEMPERATURE,
+  API_VALUE_FALSE,
+  API_VALUE_TRUE,
+  MANUFACTURER,
+  SET_STATE_WAIT_TIME_MILLIS,
+  TemperatureUnits,
+  THERMOSTAT_STEP_VALUE, UNKNOWN,
+} from './constants';
+import {celsiusToFahrenheit, fahrenheitToCelsius} from './util';
 
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class ExamplePlatformAccessory {
+export class RinnaiControlrPlatformAccessory {
   private service: Service;
 
-  /**
-   * These are just used to create a working example
-   * You should implement your own code to track the state of your accessory
-   */
-  private exampleStates = {
-    On: false,
-    Brightness: 100,
-  };
-
   constructor(
-    private readonly platform: ExampleHomebridgePlatform,
+    private readonly platform: RinnaiControlrHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
 
+    const device = this.accessory.context;
+
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, MANUFACTURER)
+      .setCharacteristic(this.platform.Characteristic.Model, device.model || UNKNOWN)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, device.dsn || UNKNOWN);
 
-    // get the LightBulb service if it exists, otherwise create a new LightBulb service
-    // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
-
-    // set the service name, this is what is displayed as the default name on the Home app
-    // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
-
-    // each service must implement at-minimum the "required characteristics" for the given service type
-    // see https://developers.homebridge.io/#/service/Lightbulb
+    this.service = this.accessory.getService(this.platform.Service.HeaterCooler)
+        || this.accessory.addService(this.platform.Service.HeaterCooler);
+    this.service.setCharacteristic(this.platform.Characteristic.Name, device.device_name);
 
     // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+    this.service.getCharacteristic(this.platform.Characteristic.Active)
+      .onSet(this.setActive.bind(this));                // SET - bind to the `setOn` method below
 
-    // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+    // register handlers for the target temp Characteristic
+    this.service.getCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature)
+      .onSet(this.setTemperature.bind(this))
+      .onGet(this.getTemperature.bind(this));
 
-    /**
-     * Creating multiple services of the same type.
-     *
-     * To avoid "Cannot add a Service with the same UUID another Service without also defining a unique 'subtype' property." error,
-     * when creating multiple services of the same type, you need to use the following syntax to specify a name and subtype id:
-     * this.accessory.getService('NAME') || this.accessory.addService(this.platform.Service.Lightbulb, 'NAME', 'USER_DEFINED_SUBTYPE_ID');
-     *
-     * The USER_DEFINED_SUBTYPE must be unique to the platform accessory (if you platform exposes multiple accessories, each accessory
-     * can use the same sub type id.)
-     */
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      .setProps({
+        minStep: THERMOSTAT_STEP_VALUE,
+      });
+    const isFahrenheit = this.platform.getConfig().temperatureUnits === TemperatureUnits.F;
+    let minValue = this.platform.getConfig().minimumTemperature;
+    let maxValue = this.platform.getConfig().maximumTemperature;
+    if (isFahrenheit) {
+      minValue = fahrenheitToCelsius(minValue);
+      maxValue = fahrenheitToCelsius(maxValue);
+    }
+    this.service.getCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature)
+      .setProps({
+        minValue: minValue,
+        maxValue: maxValue,
+        minStep: THERMOSTAT_STEP_VALUE,
+      });
 
-    // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    this.service.getCharacteristic(this.platform.Characteristic.TargetHeaterCoolerState)
+      .setProps({
+        validValues: [this.platform.Characteristic.TargetHeaterCoolerState.HEAT],
+      });
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+    this.platform.log.debug(`Setting device on device: ${JSON.stringify(this.accessory.context, null, 2)}`);
 
-    /**
-     * Updating characteristics values asynchronously.
-     *
-     * Example showing how to update the state of a Characteristic asynchronously instead
-     * of using the `on('get')` handlers.
-     * Here we change update the motion sensor trigger states on and off every 10 seconds
-     * the `updateCharacteristic` method.
-     *
-     */
-    let motionDetected = false;
-    setInterval(() => {
-      // EXAMPLE - inverse the trigger
-      motionDetected = !motionDetected;
+    // push values to HomeKit
+    const temperatureValue = isFahrenheit && device.info?.domestic_temperature ? fahrenheitToCelsius(device.info.domestic_temperature) :
+      device.info.domestic_temperature;
+    this.service.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits,
+      TemperatureDisplayUnits.FAHRENHEIT);
+    // this.service.getCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature)
+    //   .setProps({
+    //     minValue: 120,
+    //     maxValue: 140,
+    //     validValues: [120, 125, 130, 135, 140],
+    //   });
+    //}
+    this.service.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, temperatureValue);
+    this.service.updateCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature, temperatureValue);
 
-      // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
+    this.service.updateCharacteristic(this.platform.Characteristic.On,
+      device.info.domestic_combustion.toLowerCase() === API_VALUE_TRUE);
+    this.service.updateCharacteristic(this.platform.Characteristic.Active,
+      device.shadow.recirculation_enabled);
 
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
+    this.service.updateCharacteristic(this.platform.Characteristic.CurrentHeaterCoolerState,
+      device.shadow.recirculation_enabled ?
+        this.platform.Characteristic.CurrentHeaterCoolerState.HEATING :
+        this.platform.Characteristic.CurrentHeaterCoolerState.IDLE);
   }
 
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
    */
-  async setOn(value: CharacteristicValue) {
-    // implement your own code to turn your device on/off
-    this.exampleStates.On = value as boolean;
-
+  async setActive(value: CharacteristicValue) {
     this.platform.log.debug('Set Characteristic On ->', value);
-  }
-
-  /**
-   * Handle the "GET" requests from HomeKit
-   * These are sent when HomeKit wants to know the current state of the accessory, for example, checking if a Light bulb is on.
-   *
-   * GET requests should return as fast as possbile. A long delay here will result in
-   * HomeKit being unresponsive and a bad user experience in general.
-   *
-   * If your device takes time to respond you should update the status of your device
-   * asynchronously instead using the `updateCharacteristic` method instead.
-
-   * @example
-   * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
-   */
-  async getOn(): Promise<CharacteristicValue> {
-    // implement your own code to check if the device is on
-    const isOn = this.exampleStates.On;
-
-    this.platform.log.debug('Get Characteristic On ->', isOn);
-
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-
-    return isOn;
+    await this.platform.setState(this.accessory, API_KEY_SET_PRIORITY_STATUS, API_VALUE_TRUE);
+    if (value as boolean) {
+      await this.platform.setState(this.accessory, API_KEY_RECIRCULATION_DURATION, `${this.platform.getConfig().recirculationDuration}`);
+      await this.platform.setState(this.accessory, API_KEY_SET_RECIRCULATION_ENABLED, API_VALUE_TRUE);
+    } else {
+      await this.platform.setState(this.accessory, API_KEY_RECIRCULATION_DURATION, '0');
+      await this.platform.setState(this.accessory, API_KEY_SET_RECIRCULATION_ENABLED, API_VALUE_FALSE);
+    }
   }
 
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
-  async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
-    this.exampleStates.Brightness = value as number;
+  async setTemperature(value: CharacteristicValue) {
+    const convertedValue = Math.round(celsiusToFahrenheit(value as number));
+    this.platform.log.debug('Set Characteristic Temperature -> ', value);
 
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    await this.platform.setState(this.accessory, API_KEY_SET_PRIORITY_STATUS, API_VALUE_TRUE);
+    await this.platform.setState(this.accessory, API_KEY_SET_TEMPERATURE, `${convertedValue}`);
+    setTimeout(() => {
+      this.platform.throttledPoll();
+    }, SET_STATE_WAIT_TIME_MILLIS);
   }
 
+  async getTemperature(): Promise<Nullable<CharacteristicValue>> {
+    this.platform.throttledPoll();
+    return null;
+  }
 }
