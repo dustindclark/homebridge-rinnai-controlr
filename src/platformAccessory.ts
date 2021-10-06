@@ -1,7 +1,6 @@
 import {CharacteristicValue, Nullable, PlatformAccessory, Service} from 'homebridge';
 
 import {RinnaiControlrHomebridgePlatform} from './platform';
-import {TemperatureDisplayUnits} from 'hap-nodejs/dist/lib/definitions/CharacteristicDefinitions';
 import {
   API_KEY_RECIRCULATION_DURATION,
   API_KEY_SET_PRIORITY_STATUS, API_KEY_SET_RECIRCULATION_ENABLED,
@@ -78,7 +77,7 @@ export class RinnaiControlrPlatformAccessory {
     const temperatureValue = isFahrenheit && device.info?.domestic_temperature ? fahrenheitToCelsius(device.info.domestic_temperature) :
       device.info.domestic_temperature;
     this.service.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits,
-      TemperatureDisplayUnits.FAHRENHEIT);
+      this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT);
     // this.service.getCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature)
     //   .setProps({
     //     minValue: 120,
