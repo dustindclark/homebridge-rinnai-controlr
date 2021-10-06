@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Rinnai Control-R Plugin",
   "name": "homebridge-rinnai-controlr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Integrates with Rinnai Control-R for HomeKit control of water heaters",
   "license": "Apache-2.0",
   "repository": {
@@ -23,7 +23,13 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "homebridge rinnai,homebridge rinnai control r,homebridge rinnai control-r,homekit rinnai,homekit rinnai control-r,homekit rinnai controlr"
+    "homebridge-plugin",
+    "homebridge rinnai",
+    "homebridge rinnai control r",
+    "homebridge rinnai control-r",
+    "homekit rinnai",
+    "homekit rinnai control-r",
+    "homekit rinnai controlr"
   ],
   "dependencies": {
     "@aws-amplify/auth": "^4.3",
