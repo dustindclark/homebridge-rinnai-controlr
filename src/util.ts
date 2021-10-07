@@ -1,7 +1,7 @@
 export const fahrenheitToCelsius = (fValue: number): number => {
-  return (fValue - 32) * 5/9;
+  return (fValue - 32) / 1.8;
 };
 
 export const celsiusToFahrenheit = (cValue: number): number => {
-  return cValue * 9/5 + 32;
+  return cValue * 1.8 + 32;
 };
