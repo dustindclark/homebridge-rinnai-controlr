@@ -77,7 +77,11 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
    */
   configureAccessory(accessory: PlatformAccessory) {
     this.log.debug('Loading accessory from cache:', accessory.displayName);
-    this.accessories.push(accessory);
+    if (this.removeBrokenAccessories(accessory.context)) {
+      this.log.warn('');
+    } else {
+      this.accessories.push(accessory);
+    }
   }
 
   initializeAmplifyClient() {
@@ -213,14 +217,17 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
     });
   }
 
-  removeBrokenAccessories(device) {
+  removeBrokenAccessories(device): boolean {
+    let removed = false;
     PREVIOUS_UUID_SUFFICES.forEach(uuidSuffix => {
       const oldUuid = this.api.hap.uuid.generate(`${device.dsn}${uuidSuffix}`);
       const oldAccessory = this.accessories.find(accessory => accessory.UUID === oldUuid);
       if (oldAccessory) {
         this.log.info(`Removing existing accessory from cache because of breaking change: ${oldAccessory.displayName}`);
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [oldAccessory]);
+        removed = true;
       }
     });
+    return removed;
   }
 }
