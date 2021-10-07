@@ -16,12 +16,12 @@ import {
   API_KEY,
   API_POLL_THROTTLE_MILLIS,
   GET_DEVICES_QUERY,
-  GRAPHQL_ENDPOINT,
+  GRAPHQL_ENDPOINT, PREVIOUS_UUID_SUFFICES,
   REGION,
   SHADOW_ENDPOINT,
   TemperatureUnits,
   USER_POOL_ID,
-  USER_POOL_WEB_CLIENT_ID,
+  USER_POOL_WEB_CLIENT_ID, UUID_SUFFIX,
 } from './constants';
 import _ from 'lodash';
 
@@ -161,11 +161,10 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
         this.log.debug(`Found ${devices.length} Rinnai devices.`);
         // loop over the discovered devices and register each one if it has not already been registered
         for (const device of devices) {
-          // generate a unique id for the accessory this should be generated from
-          // something globally unique, but constant, for example, the device serial
-          // number or MAC address
+          this.removeBrokenAccessories(device);
+
           this.log.debug(`Generating UUID from DSN ${device.dsn}`);
-          const uuid = this.api.hap.uuid.generate(device.dsn);
+          const uuid = this.api.hap.uuid.generate(`${device.dsn}${UUID_SUFFIX}`);
 
           // see if an accessory with the same uuid has already been registered and restored from
           // the cached devices we stored in the `configureAccessory` method above
@@ -211,6 +210,17 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
 
     }).catch(error => {
       this.log.debug('Failed to fetch session', error);
+    });
+  }
+
+  removeBrokenAccessories(device) {
+    PREVIOUS_UUID_SUFFICES.forEach(uuidSuffix => {
+      const oldUuid = this.api.hap.uuid.generate(`${device.dsn}${uuidSuffix}`);
+      const oldAccessory = this.accessories.find(accessory => accessory.UUID === oldUuid);
+      if (oldAccessory) {
+        this.log.info(`Removing existing accessory from cache because of breaking change: ${oldAccessory.displayName}`);
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [oldAccessory]);
+      }
     });
   }
 }

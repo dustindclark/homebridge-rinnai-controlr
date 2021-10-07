@@ -273,3 +273,7 @@ export enum TemperatureUnits {
 }
 
 export const THERMOSTAT_STEP_VALUE = 0.5;
+
+// Increment only for breaking service changes to remove and re-add devices
+export const PREVIOUS_UUID_SUFFICES = [''];
+export const UUID_SUFFIX = '-1';
