@@ -97,8 +97,12 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   async initializeSession() {
-    const user = await Auth.signIn(this.getConfig().username, this.getConfig().password);
-    this.log.debug(`Session initialized successfully for user: ${JSON.stringify(user)}`);
+    try {
+      const user = await Auth.signIn(this.getConfig().username, this.getConfig().password);
+      this.log.debug(`Session initialized successfully for user: ${JSON.stringify(user)}`);
+    } catch(error) {
+      this.log.error('Caught error authenticating.', error);
+    }
   }
 
   throttledPoll() {
