@@ -59,7 +59,7 @@ export class RinnaiControlrPlatformAccessory {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, this.device.model || UNKNOWN)
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.dsn || UNKNOWN)
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.device.shadow?.module_firmware_revision || UNKNOWN);
+      .setCharacteristic(this.platform.Characteristic.HardwareRevision, this.device.shadow?.module_firmware_revision || UNKNOWN);
 
     this.service = this.accessory.getService(this.platform.Service.Thermostat)
         || this.accessory.addService(this.platform.Service.Thermostat);
@@ -73,6 +73,9 @@ export class RinnaiControlrPlatformAccessory {
   bindTemperature() {
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
       .onSet(this.setTemperature.bind(this))
+      .onGet(this.getTemperature.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
