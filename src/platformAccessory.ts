@@ -22,6 +22,7 @@ const RECIRC_SERVICE_NAME = 'Recirculation';
  */
 export class RinnaiControlrPlatformAccessory {
   private service: Service;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private device: any;
 
   constructor(
