@@ -58,8 +58,7 @@ export class RinnaiControlrPlatformAccessory {
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, this.device.model || UNKNOWN)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.dsn || UNKNOWN)
-      .setCharacteristic(this.platform.Characteristic.HardwareRevision, this.device.shadow?.module_firmware_revision || UNKNOWN);
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.dsn || UNKNOWN);
 
     this.service = this.accessory.getService(this.platform.Service.Thermostat)
         || this.accessory.addService(this.platform.Service.Thermostat);
@@ -73,19 +72,17 @@ export class RinnaiControlrPlatformAccessory {
   bindTemperature() {
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
       .onSet(this.setTemperature.bind(this))
-      .onGet(this.getTemperature.bind(this));
-
-    this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-      .onGet(this.getTemperature.bind(this));
-
-    this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
+      .onGet(this.getTemperature.bind(this))
       .setProps({
         minValue: this.minValue,
         maxValue: this.maxValue,
         minStep: THERMOSTAT_STEP_VALUE,
-      });
+      })
+      .updateValue(this.temperature);
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      .onGet(this.getTemperature.bind(this))
+      .updateValue(this.temperature)
       .setProps({
         minValue: this.minValue,
         maxValue: this.maxValue,
@@ -93,14 +90,12 @@ export class RinnaiControlrPlatformAccessory {
       });
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
+      .updateValue(this.platform.Characteristic.TargetHeatingCoolingState.HEAT)
       .setProps({
         minValue: this.platform.Characteristic.TargetHeatingCoolingState.HEAT,
         maxValue: this.platform.Characteristic.TargetHeatingCoolingState.HEAT,
         validValues: [this.platform.Characteristic.TargetHeatingCoolingState.HEAT],
       });
-
-    this.service.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, this.temperature);
-    this.service.updateCharacteristic(this.platform.Characteristic.TargetTemperature, this.temperature);
   }
 
   bindRecirculation() {
