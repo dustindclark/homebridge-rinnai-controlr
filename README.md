@@ -1,4 +1,5 @@
 # Homebridge Rinnai Control-R Plugin
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![NPM Version](https://img.shields.io/npm/v/homebridge-rinnai-controlr.svg)](https://www.npmjs.com/package/homebridge-rinnai-controlr)
 
 This plugin integrates with Rinnai Control-R to provide HomeKit-based control of your Rinnai hot water heaters.
