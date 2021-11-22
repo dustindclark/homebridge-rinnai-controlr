@@ -1,5 +1,4 @@
 import index from '../src/';
-import {RinnaiControlrHomebridgePlatform} from '../src/platform';
 import {API} from 'homebridge';
 
 describe('Platform should be registered correctly', () => {
