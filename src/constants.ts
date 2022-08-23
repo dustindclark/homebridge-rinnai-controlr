@@ -5,7 +5,8 @@ export const USER_POOL_WEB_CLIENT_ID = '5ghq3i6k4p9s7dfu34ckmec91';
 export const REGION = 'us-east-1';
 
 export const GRAPHQL_ENDPOINT = 'https://s34ox7kri5dsvdr43bfgp6qh6i.appsync-api.us-east-1.amazonaws.com/graphql';
-export const SHADOW_ENDPOINT = 'https://d1coipyopavzuf.cloudfront.net/api/device_shadow/input';
+export const SHADOW_ENDPOINT_PREFIX = 'https://698suy4zs3.execute-api.us-east-1.amazonaws.com/Prod/thing/';
+export const SHADOW_ENDPOINT_SUFFIX = '/shadow';
 export const API_KEY = 'da2-dm2g4rqvjbaoxcpo4eccs3k5he';
 export const GET_DEVICES_QUERY = gql`
 query GetUserByEmail(

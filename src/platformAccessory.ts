@@ -5,7 +5,6 @@ import {
   API_KEY_RECIRCULATION_DURATION,
   API_KEY_SET_PRIORITY_STATUS, API_KEY_SET_RECIRCULATION_ENABLED,
   API_KEY_SET_TEMPERATURE,
-  API_VALUE_FALSE,
   API_VALUE_TRUE,
   MANUFACTURER,
   SET_STATE_WAIT_TIME_MILLIS,
@@ -123,14 +122,14 @@ export class RinnaiControlrPlatformAccessory {
 
   async setRecirculateActive(value: CharacteristicValue) {
     this.platform.log.info(`setRecirculateActive to ${value} for device ${this.device.dsn}`);
-    await this.platform.setState(this.accessory, API_KEY_SET_PRIORITY_STATUS, API_VALUE_TRUE);
-    if (value as boolean) {
-      await this.platform.setState(this.accessory, API_KEY_RECIRCULATION_DURATION, `${this.platform.getConfig().recirculationDuration}`);
-      await this.platform.setState(this.accessory, API_KEY_SET_RECIRCULATION_ENABLED, API_VALUE_TRUE);
-    } else {
-      await this.platform.setState(this.accessory, API_KEY_RECIRCULATION_DURATION, '0');
-      await this.platform.setState(this.accessory, API_KEY_SET_RECIRCULATION_ENABLED, API_VALUE_FALSE);
-    }
+    const duration = (value as boolean) ? `${this.platform.getConfig().recirculationDuration}`
+      : '0';
+    const state : Record<string, string | boolean> = {
+      [API_KEY_SET_PRIORITY_STATUS]: true,
+      [API_KEY_RECIRCULATION_DURATION]: duration,
+      [API_KEY_SET_RECIRCULATION_ENABLED] : (value as boolean),
+    };
+    await this.platform.setState(this.accessory, state);
   }
 
   async setTemperature(value: CharacteristicValue) {
@@ -142,8 +141,12 @@ export class RinnaiControlrPlatformAccessory {
 
     this.platform.log.debug('Sending converted/rounded temperature: ${convertedValue}');
 
-    await this.platform.setState(this.accessory, API_KEY_SET_PRIORITY_STATUS, API_VALUE_TRUE);
-    await this.platform.setState(this.accessory, API_KEY_SET_TEMPERATURE, `${convertedValue}`);
+    const state : Record<string, string | number | boolean> = {
+      [API_KEY_SET_PRIORITY_STATUS]: true,
+      [API_KEY_SET_TEMPERATURE] : convertedValue,
+    };
+
+    await this.platform.setState(this.accessory, state);
     setTimeout(() => {
       this.platform.throttledPoll();
     }, SET_STATE_WAIT_TIME_MILLIS);
