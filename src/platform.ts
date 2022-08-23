@@ -18,7 +18,7 @@ import {
   GET_DEVICES_QUERY,
   GRAPHQL_ENDPOINT, PREVIOUS_UUID_SUFFICES,
   REGION,
-  SHADOW_ENDPOINT,
+  SHADOW_ENDPOINT_PREFIX, SHADOW_ENDPOINT_SUFFIX,
   TemperatureUnits,
   USER_POOL_ID,
   USER_POOL_WEB_CLIENT_ID, UUID_SUFFIX,
@@ -121,23 +121,27 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
     return this.config as RinnaiControlrConfig;
   }
 
-  async setState(accessory: PlatformAccessory, attribute: string, value: string) {
-    const body = {
-      'user': accessory.context.user_uuid,
-      'thing': accessory.context.thing_name,
-      'attribute': attribute,
-      'value': value,
-    };
-    this.log.debug(`Sending state to Rinnai: ${JSON.stringify(body)}`);
-    const response = await fetch(SHADOW_ENDPOINT, {
-      method: 'post',
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'okhttp/3.12.1',
-      },
-    });
-    this.log.debug(`Set state responded with ${response.status} ${response.statusText}. Body: ${JSON.stringify(response)}`);
+  async setState(accessory: PlatformAccessory, state: Record<string, string | number | boolean>) {
+    try {
+      const session = await Auth.currentSession();
+      const url = `${SHADOW_ENDPOINT_PREFIX}${accessory.context['thing_name']}${SHADOW_ENDPOINT_SUFFIX}`;
+      const request = {
+        method: 'patch',
+        body: JSON.stringify(state),
+        headers: {
+          'User-Agent': 'okhttp/3.12.1',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept-Encoding': 'gzip',
+          'Accept': 'application/json, text/plain, */*',
+          'Authorization': `Bearer ${session.getIdToken().getJwtToken()}`,
+        },
+      };
+      this.log.debug(`Sending state to Rinnai. Endpoint: ${url} Request: ${JSON.stringify(request)}`);
+      const response = await fetch(url, request);
+      this.log.debug(`Set state responded with ${response.status} ${response.statusText}. Body: ${JSON.stringify(response)}`);
+    } catch(error) {
+      this.log.error('Caught error setting state.', error);
+    }
   }
 
   /**
@@ -209,7 +213,7 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
 
         this.log.debug(`Polled ${devices.length} Rinnai devices successfully.`);
       }).catch(error => {
-        this.log.error('Could not poll Rinnai devies', error);
+        this.log.error('Could not poll Rinnai devices', error);
       });
 
     }).catch(error => {
