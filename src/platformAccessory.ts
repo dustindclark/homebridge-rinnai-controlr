@@ -121,7 +121,7 @@ export class RinnaiControlrPlatformAccessory {
   }
 
   async setRecirculateActive(value: CharacteristicValue) {
-    this.platform.log.debug(`setRecirculateActive to ${value} for device ${this.device.dsn}`);
+    this.platform.log.info(`setRecirculateActive to ${value} for device ${this.device.dsn}`);
     const duration = (value as boolean) ? `${this.platform.getConfig().recirculationDuration}`
       : '0';
     const state : Record<string, string | boolean> = {
@@ -133,7 +133,7 @@ export class RinnaiControlrPlatformAccessory {
   }
 
   async setTemperature(value: CharacteristicValue) {
-    this.platform.log.debug(`setTemperature to ${value} for device ${this.device.dsn}`);
+    this.platform.log.info(`setTemperature to ${value} for device ${this.device.dsn}`);
 
     const convertedValue : number = this.isFahrenheit
       ? Math.round(celsiusToFahrenheit(value as number)/5) * 5 // Round to nearest 5
