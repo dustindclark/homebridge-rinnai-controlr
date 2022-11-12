@@ -1,5 +1,5 @@
 {
-  "displayName": "Homebridge Rinnai Control-R Plugin",
+  "displayName": "Homebridge Rinnai Control-R",
   "name": "homebridge-rinnai-controlr",
   "version": "1.0.21",
   "description": "Integrates with Rinnai Control-R for HomeKit control of water heaters",
