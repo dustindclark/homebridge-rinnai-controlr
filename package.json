@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Rinnai Control-R",
   "name": "homebridge-rinnai-controlr",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "Integrates with Rinnai Control-R for HomeKit control of water heaters",
   "license": "Apache-2.0",
   "repository": {
