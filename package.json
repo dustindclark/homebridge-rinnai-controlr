@@ -33,14 +33,14 @@
     "homekit rinnai controlr"
   ],
   "dependencies": {
+    "@aws-amplify/auth": "^5.1.1",
+    "@aws-amplify/api-graphql": "^3.0.7",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
-    "@aws-amplify/auth": "^5.1.1",
-    "@aws-amplify/api-graphql": "^3.0.7",
     "@types/node": "^18.11.17",
     "@types/jest": "^29.2.4",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
