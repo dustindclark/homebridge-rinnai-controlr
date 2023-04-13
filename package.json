@@ -33,27 +33,26 @@
     "homekit rinnai controlr"
   ],
   "dependencies": {
-    "@aws-amplify/auth": "^5.1.1",
-    "@aws-amplify/api-graphql": "^3.0.7",
+    "@aws-amplify/api-graphql": "^3.0.11",
+    "@aws-amplify/auth": "^5.1.5",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "lodash": "^4.17.21",
-    "node-fetch": "^3.3.0"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
     "@types/jest": "^29.2.4",
+    "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
     "eslint": "^8.30.0",
     "homebridge": "^1.6.0",
     "homebridge-config-ui-x": "^4.50.2",
-    "nodemon": "^2.0.20",
-    "rimraf": "^3.0.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4",
     "jest": "^29.3.1",
-    "ts-jest": "^29.0.3"
+    "nodemon": "^2.0.20",
+    "rimraf": "^4.1.1",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   },
   "homepage": "https://github.com/dustindclark/homebridge-rinnai-controlr#readme",
   "funding": {
