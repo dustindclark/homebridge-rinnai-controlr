@@ -126,7 +126,7 @@ export class RinnaiControlrHomebridgePlatform implements DynamicPlatformPlugin {
             const session = await Auth.currentSession();
             const url = `${SHADOW_ENDPOINT_PREFIX}${accessory.context['thing_name']}${SHADOW_ENDPOINT_SUFFIX}`;
             const request = {
-                method: 'patch',
+                method: 'PATCH',
                 body: JSON.stringify(state),
                 headers: {
                     'User-Agent': 'okhttp/3.12.1',
