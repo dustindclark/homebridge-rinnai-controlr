@@ -273,7 +273,8 @@ export enum TemperatureUnits {
     F = 'F',
 }
 
-export const THERMOSTAT_STEP_VALUE = 0.5;
+export const THERMOSTAT_STEP_VALUE = 0.5; // in C, as HomeKit uses this unit for accessories
+export const WATER_HEATER_STEP_VALUE_IN_F = 2; // Controllers with the imperial unit, use 98/100/102/etc
 
 // Increment only for breaking service changes to remove and re-add devices
 export const PREVIOUS_UUID_SUFFICES = [''];

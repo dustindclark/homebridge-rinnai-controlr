@@ -40,14 +40,14 @@
         "description": "Minimum temperature to be used by HomeKit slider. Use same units as configured above.",
         "type": "number",
         "required": true,
-        "default": "120"
+        "default": "98"
       },
       "maximumTemperature": {
         "title": "Maximum Temperature",
         "description": "Maximum temperature to be used by HomeKit slider. Use same units as configured above.",
         "type": "number",
         "required": true,
-        "default": "140"
+        "default": "120"
       }
     }
   }
